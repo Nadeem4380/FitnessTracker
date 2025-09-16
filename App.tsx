@@ -183,47 +183,54 @@ export default function App() {
 
   // Load from GitHub
   useEffect(() => {
-    (async () => {
-      try {
-        const { content: workoutsData, sha: wSha } = await fetchGithubJson('workouts.json');
-        setWorkouts(workoutsData); setWorkoutsSha(wSha);
-        const { content: statsData, sha: sSha } = await fetchGithubJson('stats.json');
-        setDailyStats(statsData); setStatsSha(sSha);
-        const { content: goalsData, sha: gSha } = await fetchGithubJson('goals.json');
-        setGoals(goalsData); setGoalsSha(gSha);
-        const { content: profileData, sha: pSha } = await fetchGithubJson('profile.json');
-        setUserProfile(profileData); setProfileSha(pSha);
-      } catch (err) {
+  (async () => {
+    try {
+      const { content: workoutsData, sha: wSha } = await fetchGithubJson('workouts.json');
+      setWorkouts(workoutsData); setWorkoutsSha(wSha);
+      const { content: statsData, sha: sSha } = await fetchGithubJson('stats.json');
+      setDailyStats(statsData); setStatsSha(sSha);
+      const { content: goalsData, sha: gSha } = await fetchGithubJson('goals.json');
+      setGoals(goalsData); setGoalsSha(gSha);
+      const { content: profileData, sha: pSha } = await fetchGithubJson('profile.json');
+      setUserProfile(profileData); setProfileSha(pSha);
+    } catch (err) {
+      if (err instanceof Error) {
         Alert.alert('GitHub Data Error', err.message);
+      } else {
+        Alert.alert('GitHub Data Error', String(err));
       }
-    })();
-  }, []);
+    }
+  })();
+}, []);
 
   // Save helpers
   const saveWorkouts = async (newWorkouts: WorkoutEntry[]) => {
-    await saveGithubJson('workouts.json', newWorkouts, workoutsSha);
-    setWorkouts(newWorkouts);
-    const { sha } = await fetchGithubJson('workouts.json');
-    setWorkoutsSha(sha);
-  };
-  const saveStats = async (newStats: DailyStats[]) => {
-    await saveGithubJson('stats.json', newStats, statsSha);
-    setDailyStats(newStats);
-    const { sha } = await fetchGithubJson('stats.json');
-    setStatsSha(sha);
-  };
-  const saveGoals = async (newGoals: UserGoals) => {
-    await saveGithubJson('goals.json', newGoals, goalsSha);
-    setGoals(newGoals);
-    const { sha } = await fetchGithubJson('goals.json');
-    setGoalsSha(sha);
-  };
-  const saveProfile = async (newProfile: UserProfile) => {
-    await saveGithubJson('profile.json', newProfile, profileSha);
-    setUserProfile(newProfile);
-    const { sha } = await fetchGithubJson('profile.json');
-    setProfileSha(sha);
-  };
+  await saveGithubJson('workouts.json', newWorkouts, workoutsSha);
+  setWorkouts(newWorkouts);
+  const { sha } = await fetchGithubJson('workouts.json');
+  setWorkoutsSha(sha);
+};
+
+const saveStats = async (newStats: DailyStats[]) => {
+  await saveGithubJson('stats.json', newStats, statsSha);
+  setDailyStats(newStats);
+  const { sha } = await fetchGithubJson('stats.json');
+  setStatsSha(sha);
+};
+
+const saveGoals = async (newGoals: UserGoals) => {
+  await saveGithubJson('goals.json', newGoals, goalsSha);
+  setGoals(newGoals);
+  const { sha } = await fetchGithubJson('goals.json');
+  setGoalsSha(sha);
+};
+
+const saveProfile = async (newProfile: UserProfile) => {
+  await saveGithubJson('profile.json', newProfile, profileSha);
+  setUserProfile(newProfile);
+  const { sha } = await fetchGithubJson('profile.json');
+  setProfileSha(sha);
+};
 
   // Utility functions
   const getTodayString = () => new Date().toISOString().split('T')[0];
