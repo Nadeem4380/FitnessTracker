@@ -9,22 +9,22 @@ export async function fetchGithubJson(file: string): Promise<any> {
   return await response.json();
 }
 
-export async function saveGithubJson(file: string, data: any): Promise<void> {
-  const GITHUB_OWNER = "YourGitHubUsername";
-  const GITHUB_REPO = "fitness-app-data";
-  const url = `https://api.github.com/repos/${GITHUB_OWNER}/${GITHUB_REPO}/contents/${file}`;
-  const content = Buffer.from(JSON.stringify(data, null, 2)).toString("base64");
-
-  const res = await fetch(url, {
-    method: "PUT",
+export async function saveGithubJson(filename: string, data: any, sha: string) {
+ 
+  const response = await fetch(`https://api.github.com/repos/<OWNER>/<REPO>/contents/${filename}`, {
+    method: 'PUT',
     headers: {
-      "Authorization": `token ${GITHUB_TOKEN}`, // <-- Use your token here!
-      "Content-Type": "application/json",
+      'Authorization': `token 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`,
+      'Content-Type': 'application/json',
     },
     body: JSON.stringify({
-      message: "Update " + file,
-      content,
+      message: `Update ${filename}`,
+      content: Buffer.from(JSON.stringify(data)).toString('base64'),
+      sha: sha,
     }),
   });
-  if (!res.ok) throw new Error("Failed to save data");
+  if (!response.ok) {
+    throw new Error(`Failed to update ${filename}: ${response.statusText}`);
+  }
+  return await response.json();
 }
