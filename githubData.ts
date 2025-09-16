@@ -1,9 +1,11 @@
+import { Base64 } from 'js-base64';
 import { GITHUB_TOKEN } from '@env';
 import { Alert } from 'react-native';
 
-const OWNER = "Nadeem4380"; // Change this to your GitHub username
-const REPO = "FitnessTracker-data"; // Change this to your repo name
-const BRANCH = "main"; // Or "master" or whichever branch you want to edit
+// Set these to your own GitHub username and repository
+const OWNER = "Nadeem4380"; // <-- REPLACE with your GitHub username
+const REPO = "FitnessTracker-data";        // <-- REPLACE with your repository name
+const BRANCH = "main";                // <-- REPLACE if your branch is different
 
 const HEADERS = {
   Authorization: `token ${GITHUB_TOKEN}`,
@@ -15,14 +17,36 @@ export async function fetchGithubJson(filename: string) {
   try {
     const res = await fetch(url, { headers: HEADERS });
     if (res.status === 404) {
-      // File does not exist, return default
-      return { content: filename.endsWith('.json') ? [] : {}, sha: '' };
+      // File does not exist, return sensible defaults
+      if (filename === "goals.json") {
+        return {
+          content: {
+            dailySteps: 10000,
+            dailyCalories: 500,
+            weeklyWorkouts: 5,
+            dailyWater: 8,
+          },
+          sha: "",
+        };
+      }
+      if (filename === "profile.json") {
+        return {
+          content: {
+            name: "Nadeem4380",
+            age: 25,
+            height: 175,
+            weight: 75,
+            activityLevel: "moderate",
+          },
+          sha: "",
+        };
+      }
+      // For workouts.json and stats.json, return empty array
+      return { content: [], sha: "" };
     }
     const data = await res.json();
-    // decode base64 content
-    const content = JSON.parse(
-      Buffer.from(data.content, "base64").toString()
-    );
+    // decode base64 content using js-base64
+    const content = JSON.parse(Base64.decode(data.content));
     return { content, sha: data.sha };
   } catch (err) {
     Alert.alert("GitHub Fetch Error", err instanceof Error ? err.message : String(err));
@@ -35,7 +59,7 @@ export async function saveGithubJson(filename: string, content: any, existingSha
   try {
     const body: any = {
       message: `Update ${filename}`,
-      content: Buffer.from(JSON.stringify(content, null, 2)).toString("base64"),
+      content: Base64.encode(JSON.stringify(content, null, 2)),
       branch: BRANCH,
     };
     if (existingSha) {
