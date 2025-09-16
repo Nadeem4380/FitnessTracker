@@ -18,7 +18,16 @@ import { Ionicons } from '@expo/vector-icons';
 import { LinearGradient } from 'expo-linear-gradient';
 import { fetchGithubJson, saveGithubJson } from './githubData';
 
-const { width } = Dimensions.get('window');
+const chartConfig = {
+  backgroundGradientFrom: "#fff",
+  backgroundGradientTo: "#fff",
+  color: (opacity = 1) => `rgba(0, 0, 255, ${opacity})`, // line color
+  labelColor: (opacity = 1) => `rgba(0, 0, 0, ${opacity})`, // label color
+  strokeWidth: 2, // optional, default 3
+  barPercentage: 0.5,
+  useShadowColorFromDataset: false, // optional
+};
+const chartWidth = Dimensions.get('window').width - 40;
 const getStatusBarHeight = () => Platform.OS === 'ios' ? 44 : StatusBar.currentHeight || 24;
 
 const theme = {
