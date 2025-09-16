@@ -2,7 +2,7 @@ const GITHUB_TOKEN = 'github_pat_11AWS5A6Q0qbN7EqaZG8IV_GoYBpbqNhPi242YXMMPdgmO0
 
 export async function fetchGithubJson(file: string): Promise<any> {
   const GITHUB_OWNER = "Nadeem4380";
-  const GITHUB_REPO = "FitnessTracker";
+  const GITHUB_REPO = "FitnessTracker-data";
   const url = `https://raw.githubusercontent.com/${GITHUB_OWNER}/${GITHUB_REPO}/main/${file}`;
   const response = await fetch(url);
   if (!response.ok) throw new Error("Failed to fetch data");
