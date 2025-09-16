@@ -1,30 +1,60 @@
-const GITHUB_TOKEN = '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';
+import { GITHUB_TOKEN } from '@env';
+import { Alert } from 'react-native';
 
-export async function fetchGithubJson(file: string): Promise<any> {
-  const GITHUB_OWNER = "Nadeem4380";
-  const GITHUB_REPO = "FitnessTracker-data";
-  const url = `https://raw.githubusercontent.com/${GITHUB_OWNER}/${GITHUB_REPO}/main/${file}`;
-  const response = await fetch(url);
-  if (!response.ok) throw new Error("Failed to fetch data");
-  return await response.json();
+const OWNER = "Nadeem4380"; // Change this to your GitHub username
+const REPO = "FitnessTracker-data"; // Change this to your repo name
+const BRANCH = "main"; // Or "master" or whichever branch you want to edit
+
+const HEADERS = {
+  Authorization: `token ${GITHUB_TOKEN}`,
+  Accept: "application/vnd.github.v3+json",
+};
+
+export async function fetchGithubJson(filename: string) {
+  const url = `https://api.github.com/repos/${OWNER}/${REPO}/contents/${filename}?ref=${BRANCH}`;
+  try {
+    const res = await fetch(url, { headers: HEADERS });
+    if (res.status === 404) {
+      // File does not exist, return default
+      return { content: filename.endsWith('.json') ? [] : {}, sha: '' };
+    }
+    const data = await res.json();
+    // decode base64 content
+    const content = JSON.parse(
+      Buffer.from(data.content, "base64").toString()
+    );
+    return { content, sha: data.sha };
+  } catch (err) {
+    Alert.alert("GitHub Fetch Error", err instanceof Error ? err.message : String(err));
+    throw err;
+  }
 }
 
-export async function saveGithubJson(filename: string, data: any, sha: string) {
- 
-  const response = await fetch(`https://api.github.com/repos/<OWNER>/<REPO>/contents/${filename}`, {
-    method: 'PUT',
-    headers: {
-      'Authorization': `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`,
-      'Content-Type': 'application/json',
-    },
-    body: JSON.stringify({
+export async function saveGithubJson(filename: string, content: any, existingSha: string) {
+  const url = `https://api.github.com/repos/${OWNER}/${REPO}/contents/${filename}`;
+  try {
+    const body: any = {
       message: `Update ${filename}`,
-      content: Buffer.from(JSON.stringify(data)).toString('base64'),
-      sha: sha,
-    }),
-  });
-  if (!response.ok) {
-    throw new Error(`Failed to update ${filename}: ${response.statusText}`);
+      content: Buffer.from(JSON.stringify(content, null, 2)).toString("base64"),
+      branch: BRANCH,
+    };
+    if (existingSha) {
+      body.sha = existingSha;
+    }
+    const res = await fetch(url, {
+      method: "PUT",
+      headers: HEADERS,
+      body: JSON.stringify(body),
+    });
+    if (!res.ok) {
+      const errorText = await res.text();
+      Alert.alert("GitHub Save Error", errorText);
+      throw new Error(errorText);
+    }
+    const data = await res.json();
+    return data;
+  } catch (err) {
+    Alert.alert("GitHub Save Error", err instanceof Error ? err.message : String(err));
+    throw err;
   }
-  return await response.json();
 }
