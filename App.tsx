@@ -241,14 +241,16 @@ const saveProfile = async (newProfile: UserProfile) => {
     };
   };
   const calculateCalories = (type: string, duration: number, intensity: string): number => {
-    const baseCalories: { [key: string]: number } = {
-      'Running': 12, 'Walking': 5, 'Cycling': 8, 'Swimming': 11,
-      'Weightlifting': 6, 'Yoga': 3, 'Pilates': 4, 'CrossFit': 10,
-      'Boxing': 9, 'Dancing': 6
-    };
-    const intensityMultiplier = { 'low': 0.8, 'medium': 1.0, 'high': 1.3 };
-    return Math.round((baseCalories[type] || 6) * duration * intensityMultiplier[intensity]);
+  const baseCalories: { [key: string]: number } = {
+    'Running': 12, 'Walking': 5, 'Cycling': 8, 'Swimming': 11,
+    'Weightlifting': 6, 'Yoga': 3, 'Pilates': 4, 'CrossFit': 10,
+    'Boxing': 9, 'Dancing': 6
   };
+  const intensityMultiplier: { [key: string]: number } = { 'low': 0.8, 'medium': 1.0, 'high': 1.3 };
+  return Math.round(
+    (baseCalories[type] ?? 6) * duration * (intensityMultiplier[intensity] ?? 1)
+  );
+};
   const getWeeklyData = () => {
     const last7Days = Array.from({ length: 7 }, (_, i) => {
       const date = new Date();
@@ -700,21 +702,27 @@ const saveProfile = async (newProfile: UserProfile) => {
           <View style={styles.chartsContainer}>
             <View style={[styles.chartCard, theme.shadows.medium]}>
               <Text style={styles.chartTitle}>Weekly Calories Burned</Text>
-              <View style={styles.chartWrapper}>
-                <BarChart
+              <BarChart
                   data={{
                     labels: weeklyData.map(d => d.date),
-                    datasets: [{ data: weeklyData.map(d => d.calories).length > 0 ? weeklyData.map(d => d.calories) : [0] }],
+                    datasets: [
+                      {
+                        data:
+                          weeklyData.map(d => d.calories).length > 0
+                            ? weeklyData.map(d => d.calories)
+                            : [0]
+                      }
+                    ]
                   }}
                   width={chartWidth}
                   height={200}
                   chartConfig={chartConfig}
                   style={styles.chart}
                   withInnerLines={false}
-                  withVerticalLines={false}
-                  withHorizontalLines={true}
+                  yAxisLabel=""        
+                  yAxisSuffix=" kcal"      
+                  fromZero={true}          
                 />
-              </View>
             </View>
           </View>
 
