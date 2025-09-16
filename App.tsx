@@ -205,10 +205,11 @@ export default function App() {
 
   // Save helpers
   const saveWorkouts = async (newWorkouts: WorkoutEntry[]) => {
-  await saveGithubJson('workouts.json', newWorkouts, workoutsSha);
+  // Fetch latest SHA before saving!
+  const { sha: latestSha } = await fetchGithubJson('workouts.json');
+  await saveGithubJson('workouts.json', newWorkouts, latestSha);
   setWorkouts(newWorkouts);
-  const { sha } = await fetchGithubJson('workouts.json');
-  setWorkoutsSha(sha);
+  setWorkoutsSha(latestSha);
 };
 
 const saveStats = async (newStats: DailyStats[]) => {
