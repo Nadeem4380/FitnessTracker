@@ -449,10 +449,6 @@ We welcome contributions to make FitnessTracker even better!
 - [ ] Achievement badges and rewards
 - [ ] Export data to other fitness platforms
 
-## 📄 License
-
-This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
-
 ## 👤 Author
 
 **Nadeem4380**
